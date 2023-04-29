@@ -28,6 +28,10 @@ io.on('connection', function (socket) {
     socket.broadcast.emit('new_player_connected', newPlayer);
   });
 
+  socket.on('player_action', ({ action, id }) => {
+    socket.broadcast.emit('player_moved', { action, id });
+  });
+
   socket.on(EVENTS.DISCONECT, (data) => {
     let playerOutId = 0;
     players = players.filter((player) => {
@@ -37,8 +41,6 @@ io.on('connection', function (socket) {
       }
       return true;
     });
-
-    console.log(players);
 
     socket.broadcast.emit('player_disconnected', { id: playerOutId });
   });
