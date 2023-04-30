@@ -2,6 +2,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { EVENTS } from './src/constants/events.js';
 import Player from './src/models/player.js';
+import { sessionStore } from './src/sessionStore.js';
 
 const httpServer = createServer();
 const io = new Server(httpServer, {
@@ -10,8 +11,6 @@ const io = new Server(httpServer, {
     methods: ['GET', 'POST'],
   },
 });
-
-let players = [];
 
 io.on('connection', function (socket) {
   socket.on('player_connect', ({ id, name, x, y }) => {
@@ -22,10 +21,16 @@ io.on('connection', function (socket) {
       y,
       socketId: socket.id,
     });
-    players.push(newPlayer);
+    sessionStore.addToSession(sessionStore.currentSessionId, newPlayer);
 
-    io.to(socket.id).emit('connected', { players });
-    socket.broadcast.emit('new_player_connected', newPlayer);
+    const currentSession = sessionStore.getCurrentSession();
+
+    socket.join(sessionStore.currentSessionId);
+
+    io.to(socket.id).emit('connected', { players: currentSession.players });
+    socket.broadcast
+      .to(sessionStore.currentSessionId)
+      .emit('new_player_connected', newPlayer);
   });
 
   socket.on('player_action', ({ action, id }) => {
@@ -33,16 +38,12 @@ io.on('connection', function (socket) {
   });
 
   socket.on(EVENTS.DISCONECT, (data) => {
-    let playerOutId = 0;
-    players = players.filter((player) => {
-      if (player.socketId === socket.id) {
-        playerOutId = player.id;
-        return false;
-      }
-      return true;
-    });
+    const playerId = sessionStore.removePlayerFromSession(
+      sessionStore.currentSessionId,
+      socket.id
+    );
 
-    socket.broadcast.emit('player_disconnected', { id: playerOutId });
+    socket.broadcast.emit('player_disconnected', { id: playerId });
   });
 });
 
