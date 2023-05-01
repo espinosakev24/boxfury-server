@@ -9,3 +9,5 @@ export const EVENTS = {
   PLAYER_LEVEL_UP: 'player_level_up',
   PLAYER_GAIN_EXP: 'player_gain_exp',
 };
+
+export const TICKS_PER_SECOND = 60;

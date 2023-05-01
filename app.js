@@ -37,6 +37,10 @@ io.on('connection', function (socket) {
     socket.broadcast.emit('player_moved', { action, id });
   });
 
+  socket.on('player_update', ({ id, x, y }) => {
+    socket.broadcast.emit('player_updated', { id, x, y });
+  });
+
   socket.on(EVENTS.DISCONECT, (data) => {
     const playerId = sessionStore.removePlayerFromSession(
       sessionStore.currentSessionId,
