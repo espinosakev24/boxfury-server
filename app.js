@@ -33,12 +33,12 @@ io.on('connection', function (socket) {
       .emit('new_player_connected', newPlayer);
   });
 
-  socket.on('player_action', ({ action, id }) => {
-    socket.broadcast.emit('player_moved', { action, id });
+  socket.on('player_action', ({ action, id, aimSpeed }) => {
+    socket.broadcast.emit('player_moved', { action, id, aimSpeed });
   });
 
-  socket.on('player_update', ({ id, x, y }) => {
-    socket.broadcast.emit('player_updated', { id, x, y });
+  socket.on('player_update', ({ id, x, y, aimAngle }) => {
+    socket.broadcast.emit('player_updated', { id, x, y, aimAngle });
   });
 
   socket.on(EVENTS.DISCONECT, (data) => {

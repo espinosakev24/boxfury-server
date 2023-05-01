@@ -5,6 +5,8 @@ class Player {
     this.x = x;
     this.y = y;
     this.socketId = socketId;
+
+    this.aimAngle = Math.PI / 4;
   }
 }
 
